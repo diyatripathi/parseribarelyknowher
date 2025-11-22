@@ -7,7 +7,7 @@
       "command": "C:\\c stuff\\usr\\bin\\bash.exe",
       "args": [
         "-lc",
-        "cd \"$(cygpath -u \"${workspaceFolder}\")\" && make && make clean"
+        "cd \"$(cygpath -u \"${workspaceFolder}\")\" && make clean && make"
       ],
       "options": {
         "cwd": "${workspaceFolder}",

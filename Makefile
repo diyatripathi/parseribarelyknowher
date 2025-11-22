@@ -1,22 +1,17 @@
-# 
-
 .RECIPEPREFIX := >
-NAME    ?= Anirvaan_Kar
+NAME    ?= PIBKH
 LEXERL  := $(NAME)_PA2.l
 PARSERY := $(NAME)_PA2.y
-TESTNP  ?= $(NAME)_PA2.np
 
 LEX     ?= flex
 YACC    ?= bison
 CC      ?= gcc
 CFLAGS  ?= -O2 -Wall
-LDFLAGS ?=
-LDLIBS  ?=
 
-all: run
+all: parser
 
-parser: parser.tab.o lex.yy.o main.o
-> $(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+parser: parser.tab.o lex.yy.o PIBKH_PA3.o
+> $(CC) $(CFLAGS) -o $@ $^
 
 parser.tab.c parser.tab.h: $(PARSERY)
 > $(YACC) -d -o parser.tab.c --defines=parser.tab.h $<
@@ -30,11 +25,11 @@ parser.tab.o: parser.tab.c
 lex.yy.o: lex.yy.c parser.tab.h
 > $(CC) $(CFLAGS) -c $<
 
-main.o: main.c parser.tab.h
-> $(CC) $(CFLAGS) -c main.c
+PIBKH_PA3.o: PIBKH_PA3.c PIBKH_PA3.h
+> $(CC) $(CFLAGS) -c PIBKH_PA3.c
 
-run: parser $(TESTNP)
-> ./parser $(TESTNP)
+run: parser
+> ./parser < $(NAME)_PA2.np
 
 clean:
 > rm -f parser parser.tab.c parser.tab.h lex.yy.c *.o

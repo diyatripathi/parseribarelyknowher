@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "PIBKH_PA3.h"    /* add this line */
 #include "parser.tab.h"
 %}
 
@@ -41,9 +42,10 @@ P_SINGLE      [\*\+\/\-\<\>\=\(\)\,\;\.\:]
 WS            [ \t\r\n\xA0]+
 
 %%
-"\xEF\xBB\xBF"     { }
-{COMMENT}          { }
-{WS}               { }
+
+"\xEF\xBB\xBF"     { /* UTF-8 BOM: ignore */ }
+{COMMENT}          { /* ignore comments */ }
+{WS}               { /* ignore whitespace */ }
 
 {KW_PROGRAM}       { return PROGRAM; }
 {KW_FUNCTION}      { return FUNCTION; }
@@ -58,10 +60,26 @@ WS            [ \t\r\n\xA0]+
 {KW_BEGIN}         { return KW_BEGIN; }
 {KW_END}           { return KW_END; }
 
-{ID}               { return ID; }
-{ZERO}             { return NUM; }
-{INT}              { return NUM; }
-{STRING}           { return STR; }
+{ID} {
+    yylval.sval = strdup(yytext);
+    return ID;
+}
+
+{ZERO} {
+    yylval.ival = 0;
+    return NUM;
+}
+
+{INT} {
+    yylval.ival = atoi(yytext);
+    return NUM;
+}
+
+{STRING} {
+    /* keep the quotes for now; parser/translator can handle them as-is */
+    yylval.sval = strdup(yytext);
+    return STR;
+}
 
 {P_LE}             { return LE; }
 {P_GE}             { return GE; }
@@ -70,7 +88,7 @@ WS            [ \t\r\n\xA0]+
 {P_NE}             { return NEQ; }
 {P_ASSIGN}         { return ASSIGN; }
 
-{P_SINGLE}         {
+{P_SINGLE} {
     switch (yytext[0]) {
         case '<': return LT;
         case '>': return GT;
@@ -89,6 +107,9 @@ WS            [ \t\r\n\xA0]+
     }
 }
 
-.                  { return yytext[0]; }
+. {
+    /* Unknown single char: hand it to the parser, which will likely error */
+    return yytext[0];
+}
 
 %%
