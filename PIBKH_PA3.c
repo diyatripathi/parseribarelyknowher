@@ -121,8 +121,7 @@ Symbol *symtab_insert(SymbolTable *st,
     /* 1. Check only this table for an existing symbol with the same name */
     for (int i = 0; i < st->count; ++i) {
         if (strcmp(st->symbols[i]->name, name) == 0) {
-            /* Optional: update its type/kind/size if you want
-               but for PA3 it's fine to just return it. */
+            /* For PA3 it's fine to just return the existing symbol. */
             return st->symbols[i];
         }
     }
@@ -141,24 +140,13 @@ Symbol *symtab_insert(SymbolTable *st,
     sym->offset = st->offset;
     sym->nested = NULL;
 
-    /* 3. Grow the symbol array if needed */
-    if (st->count == st->capacity) {
-        int newCap = (st->capacity == 0) ? 8 : 2 * st->capacity;
-        st->symbols = (Symbol **)realloc(st->symbols,
-                                         newCap * sizeof(Symbol *));
-        if (!st->symbols) {
-            fprintf(stderr, "Out of memory growing symbol table\n");
-            exit(1);
-        }
-        st->capacity = newCap;
-    }
-
+    /* 3. Ensure capacity and insert */
+    ensure_symbol_capacity(st);
     st->symbols[st->count++] = sym;
     st->offset += size;
 
     return sym;
 }
-
 
 SymbolTable *symtab_create_nested(Symbol *funcSym, const char *name) {
     if (!funcSym) return NULL;
@@ -204,7 +192,8 @@ void symtab_print(SymbolTable *st) {
     if (!st) return;
 
     printf("--------------------\n");
-    printf("ST: %s, Parent: %s\n",
+    /* Match the spec: ST:<name-of-ST>, Parent:<null or name-of-parent> */
+    printf("ST:%s, Parent:%s\n",
            st->name,
            (st->parent ? st->parent->name : "null"));
     printf("--------------------\n");
@@ -215,17 +204,7 @@ void symtab_print(SymbolTable *st) {
         /* Hide temporaries from printed table */
         if (sym->kind == SYM_TEMP) continue;
 
-        const char *scope;
-
-        if (sym->kind == SYM_FUNC) {
-            scope = "func";
-        } else if (sym->kind == SYM_PARAM) {
-            scope = "param";
-        } else if (st == globalST) {
-            scope = "global";
-        } else {
-            scope = "local";
-        }
+        const char *scope = scope_string(sym, st);
 
         printf("%s, %s, %s, %s\n",
                sym->name,
@@ -233,7 +212,9 @@ void symtab_print(SymbolTable *st) {
                scope,
                (sym->nested ? sym->nested->name : "null"));
     }
-    printf("\n");
+
+    /* Closing line as shown in the assignment's Output Format */
+    printf("--------------------\n\n");
 
     /* Recursively print nested symbol tables (functions) */
     for (int i = 0; i < st->count; ++i) {
@@ -242,7 +223,6 @@ void symtab_print(SymbolTable *st) {
         }
     }
 }
-
 
 /* =========================================================
  * 3.x  Compatibility wrappers for PA3 grammar
@@ -333,6 +313,15 @@ int nextinstr(void) {
     return quad_count;
 }
 
+/* helper: is result a numeric label (all digits)? */
+static int is_numeric_label(const char *s) {
+    if (!s || !*s) return 0;
+    for (const char *p = s; *p; ++p) {
+        if (*p < '0' || *p > '9') return 0;
+    }
+    return 1;
+}
+
 void print_quads(void) {
     for (int i = 0; i < quad_count; ++i) {
         Quad *q = &quad_array[i];
@@ -345,16 +334,38 @@ void print_quads(void) {
         /* Spec: "<index>:\t<TAC>\n" */
         printf("%d:\t", i);
 
-        if (strcmp(op, "goto") == 0) {
+        /* Completely empty quad: just a label / no-op line (e.g., the final label). */
+        if (op[0] == '\0' && a1[0] == '\0' &&
+            a2[0] == '\0' && res[0] == '\0') {
+            /* Print nothing after the index. */
+        }
+        else if (strcmp(op, "goto") == 0) {
             printf("goto %s", res);
-        } else if (strcmp(op, "ifFalse") == 0) {
+        }
+        else if (strcmp(op, "ifFalse") == 0) {
+            /* Value-based conditional jump: ifFalse x goto L */
             printf("ifFalse %s goto %s", a1, res);
-        } else if (strncmp(op, "if", 2) == 0) {
-            /* For any future comparison-based conditionals */
-            printf("%s %s, %s goto %s", op, a1, a2, res);
-        } else if (strcmp(op, "param") == 0) {
+        }
+        else if (strcmp(op, "if") == 0 && a2[0] == '\0') {
+            /* Value-based conditional jump: if x goto L */
+            printf("if %s goto %s", a1, res);
+        }
+        else if (strncmp(op, "if", 2) == 0 && strlen(op) > 2) {
+            /* Ops like "if<=", "if>", etc.: if x relop y goto L */
+            const char *rel = op + 2;
+            printf("if %s %s %s goto %s", a1, rel, a2, res);
+        }
+        else if ((strcmp(op, "<")  == 0 || strcmp(op, "<=") == 0 ||
+                  strcmp(op, ">")  == 0 || strcmp(op, ">=") == 0 ||
+                  strcmp(op, "==") == 0 || strcmp(op, "!=") == 0) &&
+                 is_numeric_label(res)) {
+            /* Comparison-based conditional jump: if x relop y goto L */
+            printf("if %s %s %s goto %s", a1, op, a2, res);
+        }
+        else if (strcmp(op, "param") == 0) {
             printf("param %s", a1);
-        } else if (strcmp(op, "call") == 0) {
+        }
+        else if (strcmp(op, "call") == 0) {
             if (res[0] == '\0') {
                 /* procedure call, e.g., writeln */
                 printf("call %s, %s", a1, a2);
@@ -362,25 +373,44 @@ void print_quads(void) {
                 /* function call with return */
                 printf("%s = call %s, %s", res, a1, a2);
             }
-        } else if (strcmp(op, "return") == 0) {
+        }
+        else if (strcmp(op, "return") == 0) {
             if (a1[0] == '\0') {
                 printf("return");
             } else {
                 printf("return %s", a1);
             }
-        } else if (strcmp(op, "=[]") == 0) {
+        }
+        else if (strcmp(op, "read") == 0) {
+            /* Extended TAC: read n */
+            printf("read %s", a1);
+        }
+        else if (strcmp(op, "print") == 0) {
+            /* Extended TAC: print n */
+            printf("print %s", a1);
+        }
+        else if (strcmp(op, "stop") == 0) {
+            /* Extended TAC: stop */
+            printf("stop");
+        }
+        else if (strcmp(op, "=[]") == 0) {
+            /* x = y[z] */
             printf("%s = %s[%s]", res, a1, a2);
-        } else if (strcmp(op, "[]=") == 0) {
+        }
+        else if (strcmp(op, "[]=") == 0) {
+            /* x[z] = y */
             printf("%s[%s] = %s", res, a1, a2);
-        } else if (op[0] == '\0' || strcmp(op, "=") == 0 || a2[0] == '\0') {
-            /* copy or unary op */
-            if (op[0] == '\0' || strcmp(op, "=") == 0) {
-                printf("%s = %s", res, a1);
-            } else {
-                printf("%s = %s %s", res, op, a1);
-            }
-        } else {
-            /* binary op: res = a1 op a2 */
+        }
+        else if (op[0] == '\0' || strcmp(op, "=") == 0) {
+            /* Copy assignment: x = y */
+            printf("%s = %s", res, a1);
+        }
+        else if (a2[0] == '\0') {
+            /* Unary assignment: x = op y (format: x = op y) */
+            printf("%s = %s %s", res, op, a1);
+        }
+        else {
+            /* Binary op: x = y op z */
             printf("%s = %s %s %s", res, a1, op, a2);
         }
 
@@ -472,6 +502,9 @@ int main(void) {
     translator_init();
 
     if (yyparse() == 0) {
+        /* Add final stop as per extended TAC spec */
+        emit("stop", "", "", "");
+
         /* Only print on successful parse */
         symtab_print(globalST);
         print_quads();

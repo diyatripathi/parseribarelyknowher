@@ -522,8 +522,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "PIBKH_PA2.l"
-#line 2 "PIBKH_PA2.l"
+#line 1 "PIBKH_PA3.l"
+#line 2 "PIBKH_PA3.l"
 #include <stdio.h>
 #include "PIBKH_PA3.h"    /* add this line */
 #include "parser.tab.h"
@@ -744,7 +744,7 @@ YY_DECL
 		}
 
 	{
-#line 44 "PIBKH_PA2.l"
+#line 44 "PIBKH_PA3.l"
 
 
 #line 750 "lex.yy.c"
@@ -816,83 +816,83 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 46 "PIBKH_PA2.l"
+#line 46 "PIBKH_PA3.l"
 { /* UTF-8 BOM: ignore */ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 47 "PIBKH_PA2.l"
+#line 47 "PIBKH_PA3.l"
 { /* ignore comments */ }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 48 "PIBKH_PA2.l"
+#line 48 "PIBKH_PA3.l"
 { /* ignore whitespace */ }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 50 "PIBKH_PA2.l"
+#line 50 "PIBKH_PA3.l"
 { return PROGRAM; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 51 "PIBKH_PA2.l"
+#line 51 "PIBKH_PA3.l"
 { return FUNCTION; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 52 "PIBKH_PA2.l"
+#line 52 "PIBKH_PA3.l"
 { return VAR; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 53 "PIBKH_PA2.l"
+#line 53 "PIBKH_PA3.l"
 { return INTEGER; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 54 "PIBKH_PA2.l"
+#line 54 "PIBKH_PA3.l"
 { return STRING; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 55 "PIBKH_PA2.l"
+#line 55 "PIBKH_PA3.l"
 { return WHILE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 56 "PIBKH_PA2.l"
+#line 56 "PIBKH_PA3.l"
 { return DO; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 57 "PIBKH_PA2.l"
+#line 57 "PIBKH_PA3.l"
 { return IF; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 58 "PIBKH_PA2.l"
+#line 58 "PIBKH_PA3.l"
 { return THEN; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 59 "PIBKH_PA2.l"
+#line 59 "PIBKH_PA3.l"
 { return ELSE; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 60 "PIBKH_PA2.l"
+#line 60 "PIBKH_PA3.l"
 { return KW_BEGIN; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 61 "PIBKH_PA2.l"
+#line 61 "PIBKH_PA3.l"
 { return KW_END; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 63 "PIBKH_PA2.l"
+#line 63 "PIBKH_PA3.l"
 {
     yylval.sval = strdup(yytext);
     return ID;
@@ -900,7 +900,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 68 "PIBKH_PA2.l"
+#line 68 "PIBKH_PA3.l"
 {
     yylval.ival = 0;
     return NUM;
@@ -908,7 +908,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 73 "PIBKH_PA2.l"
+#line 73 "PIBKH_PA3.l"
 {
     yylval.ival = atoi(yytext);
     return NUM;
@@ -916,7 +916,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 78 "PIBKH_PA2.l"
+#line 78 "PIBKH_PA3.l"
 {
     /* keep the quotes for now; parser/translator can handle them as-is */
     yylval.sval = strdup(yytext);
@@ -925,37 +925,37 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 84 "PIBKH_PA2.l"
+#line 84 "PIBKH_PA3.l"
 { return LE; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 85 "PIBKH_PA2.l"
+#line 85 "PIBKH_PA3.l"
 { return GE; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 86 "PIBKH_PA2.l"
+#line 86 "PIBKH_PA3.l"
 { return EQ; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 87 "PIBKH_PA2.l"
+#line 87 "PIBKH_PA3.l"
 { return EQ; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 88 "PIBKH_PA2.l"
+#line 88 "PIBKH_PA3.l"
 { return NEQ; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 89 "PIBKH_PA2.l"
+#line 89 "PIBKH_PA3.l"
 { return ASSIGN; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 91 "PIBKH_PA2.l"
+#line 91 "PIBKH_PA3.l"
 {
     switch (yytext[0]) {
         case '<': return LT;
@@ -977,7 +977,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 110 "PIBKH_PA2.l"
+#line 110 "PIBKH_PA3.l"
 {
     /* Unknown single char: hand it to the parser, which will likely error */
     return yytext[0];
@@ -985,7 +985,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 115 "PIBKH_PA2.l"
+#line 115 "PIBKH_PA3.l"
 ECHO;
 	YY_BREAK
 #line 991 "lex.yy.c"
@@ -1964,6 +1964,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 115 "PIBKH_PA2.l"
+#line 115 "PIBKH_PA3.l"
 
 
