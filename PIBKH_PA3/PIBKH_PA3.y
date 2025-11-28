@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-#include "PIBKH_PA3.h"
+#include "PIBKH_PA3_translator.h"
 
 int yylex(void);
 void yyerror(const char *s);
@@ -9,7 +9,7 @@ void yyerror(const char *s);
 %union {
     int       ival;      /* for NUM */
     char     *sval;      /* for ID, STR */
-    Symbol   *sym;       /* for expression, term, factor */
+    Symbol   *sym;       /* for expression, term, factor, function_header */
     NameList *namelist;  /* for variable_list */
     TypeKind  type;      /* for type nonterminal */
 }
@@ -28,6 +28,7 @@ void yyerror(const char *s);
 %type <type> type
 %type <namelist> variable_list
 %type <sym> expression simple_expression term factor
+%type <sym> function_header
 %type <ival> expression_list
 
 %nonassoc LT GT LE GE EQ NEQ
@@ -101,6 +102,10 @@ function_declaration_list
 function_declaration
   : function_header declaration_list_opt compound_statement
     {
+        /* Mark end of function's quad range */
+        Symbol *f = $1;  /* Get function symbol from function_header */
+        function_set_end(f, nextinstr());
+        
         if (currentST->parent) currentST = currentST->parent;
     }
   ;
@@ -126,7 +131,11 @@ function_header
                                     0);
           f->nested = fnST;   /* link function to its symbol table */
 
+          /* Register function for code generation */
+          register_function(f, fnST, nextinstr());
+
           /* Stay in fnST; function_declaration will pop back to parent */
+          $$ = f;  /* Pass function symbol to function_declaration */
       }
   ;
 

@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-#include "PIBKH_PA3.h"    /* add this line */
+#include "PIBKH_PA3_translator.h"    /* add this line */
 #include "parser.tab.h"
 %}
 

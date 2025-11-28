@@ -1,0 +1,80 @@
+--------------------
+ST:global, Parent:null
+--------------------
+x, int, global, null
+y, int, global, null
+z, int, global, null
+limit, int, global, null
+label, string, global, null
+inc, int, func, inc
+maxtwo, int, func, maxtwo
+--------------------
+
+--------------------
+ST:inc, Parent:global
+--------------------
+a, int, param, null
+r, int, local, null
+--------------------
+
+--------------------
+ST:maxtwo, Parent:global
+--------------------
+a, int, param, null
+b, int, param, null
+--------------------
+
+0:	t0 = 1
+1:	t1 = a + t0
+2:	r = t1
+3:	inc = r
+4:	t2 = a >= b
+5:	maxtwo = a
+6:	maxtwo = b
+7:	t3 = 'Enter x'
+8:	param t3
+9:	call writeln, 1
+10:	param x
+11:	call readln, 1
+12:	t4 = 'Enter y'
+13:	param t4
+14:	call writeln, 1
+15:	param y
+16:	call readln, 1
+17:	param x
+18:	t5 = call inc, 1
+19:	z = t5
+20:	t6 = z + y
+21:	z = t6
+22:	t7 = 10
+23:	t8 = z > t7
+24:	t9 = 'big'
+25:	label = t9
+26:	t10 = 'sum is big'
+27:	param t10
+28:	call writeln, 1
+29:	t11 = 'small'
+30:	label = t11
+31:	t12 = 'sum is small'
+32:	param t12
+33:	call writeln, 1
+34:	param x
+35:	param y
+36:	t13 = call maxtwo, 2
+37:	limit = t13
+38:	t14 = x < limit
+39:	t15 = 1
+40:	t16 = x + t15
+41:	x = t16
+42:	t17 = 2
+43:	t18 = z + t17
+44:	z = t18
+45:	t19 = 'Final x is'
+46:	param t19
+47:	param x
+48:	call writeln, 2
+49:	t20 = 'Final z is'
+50:	param t20
+51:	param z
+52:	call writeln, 2
+53:	stop

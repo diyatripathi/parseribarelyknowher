@@ -1,0 +1,53 @@
+{ Test program for nanoPascal translator }
+PROGRAM testnp;
+VAR x, y, z: INTEGER;
+VAR limit: INTEGER;
+VAR label: STRING;
+
+FUNCTION inc(a: INTEGER): INTEGER;
+VAR r: INTEGER;
+BEGIN
+  r := a + 1;
+  inc := r
+END;
+
+FUNCTION maxtwo(a, b: INTEGER): INTEGER;
+BEGIN
+  IF a >= b THEN
+    maxtwo := a
+  ELSE
+    maxtwo := b
+END;
+
+BEGIN
+  writeln('Enter x');
+  readln(x);
+
+  writeln('Enter y');
+  readln(y);
+
+  z := inc(x);
+  z := z + y;
+
+  IF z > 10 THEN
+  BEGIN
+    label := 'big';
+    writeln('sum is big')
+  END
+  ELSE
+  BEGIN
+    label := 'small';
+    writeln('sum is small')
+  END;
+
+  limit := maxtwo(x, y);
+
+  WHILE x < limit DO
+  BEGIN
+    x := x + 1;
+    z := z + 2
+  END;
+
+  writeln('Final x is', x);
+  writeln('Final z is', z)
+END.
